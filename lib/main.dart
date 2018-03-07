@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/cupertino.dart';
-import 'dart:convert';
-import 'dart:io';
+
+import 'chat.dart';
+import 'pm25.dart';
 
 void main() => runApp(new MyApp());
-const String _name = "Herry Wang";
+
 final ThemeData kIOSTheme = new ThemeData(
   primarySwatch: Colors.orange,
   primaryColor: Colors.grey[100],
@@ -22,11 +22,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Demo App',
       theme: defaultTargetPlatform == TargetPlatform.iOS
           ? kIOSTheme
           : kDefaultTheme,
-      home: new MyHomePage(title: 'Flutter myapp Home Page'),
+      home: new MyHomePage(title: 'Home Page'),
+      routes: <String, WidgetBuilder>{
+        '/Chat': (BuildContext context) => new ChatPage(title: 'Chat'),
+        '/PM25': (BuildContext context) => new PM25(title: 'PM 25'),
+//        '/Home': (BuildContext context) => new MyHomePage(title: 'page C'),
+      },
     );
   }
 }
@@ -49,50 +54,9 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class ChatMessage extends StatelessWidget {
-  ChatMessage({this.text, this.animationController});
-  final String text;
-  final AnimationController animationController;
-  @override
-  Widget build(BuildContext context) {
-    return new SizeTransition(
-      sizeFactor:  CurvedAnimation(
-          parent: animationController, curve: Curves.easeOut),
-      axisAlignment: 0.0,
-      child:  Container(
-        margin: const EdgeInsets.symmetric(vertical: 10.0),
-        child:  Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-             Container(
-              margin: const EdgeInsets.only(right: 16.0),
-              child:  CircleAvatar(child: Text(_name[0])),
-            ),
-             Expanded(
-              child:  Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                   Text(_name, style: Theme.of(context).textTheme.subhead),
-                   Container(
-                    margin: const EdgeInsets.only(top: 5.0),
-                    child:  Text(text),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   int _counter = 0;
-  int _pm25 = 0;
-  bool _isComposing = false;
-  final List<ChatMessage> _messages = <ChatMessage>[];
-  final TextEditingController _textController = new TextEditingController();
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -104,39 +68,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     });
   }
 
-  _updatePM25() async {
-    var httpClient = new HttpClient();
-    var uri = new Uri.http(
-        'api.waqi.info', '/feed/@728/', {'token': 'c2e449bbb5e4dffa06e8b5f28a7813e7b4f5b2e6'});
-    var request = await httpClient.getUrl(uri);
-    var response = await request.close();
-    var responseBody = await response.transform(UTF8.decoder).join();
-    var data = JSON.decode(responseBody);
-    print(data.toString());
-    setState(() {
-      _counter = 0;
-      _pm25 = data['data']['iaqi']['pm25']['v'];
-    });
-  }
-
-  void _handleSubmitted(String text) {
-    _textController.clear();
-    setState(() {
-      _isComposing = false;
-    });
-    ChatMessage message = new ChatMessage(
-      text: text,
-      animationController: new AnimationController(
-        duration: new Duration(milliseconds: 700),
-        vsync: this,
-      ),
-    );
-    setState(() {
-      _messages.insert(0, message);
-    });
-    message.animationController.forward();
-  }
-
   Widget _buildUI() {
     return new IconTheme(
       data: new IconThemeData(color: Theme.of(context).accentColor),
@@ -144,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           margin: const EdgeInsets.symmetric(horizontal: 8.0),
           // Center is a layout widget. It takes a single child and positions it
           // in the middle of the parent.
-          child: new Column(
+          child: Column(
             // Column is also layout widget. It takes a list of children and
             // arranges them vertically. By default, it sizes itself to fit its
             // children horizontally, and tries to be as tall as its parent.
@@ -160,40 +91,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             // horizontal).
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              new Row(
-                children: <Widget>[
-                  new Flexible(
-                    child: new TextField(
-                      controller: _textController,
-                      onSubmitted: _handleSubmitted,
-                      decoration: new InputDecoration.collapsed(
-                          hintText: "Send a message"),
-                      onChanged: (String text) {
-                        setState(() {
-                          _isComposing = text.length > 0;
-                        });
-                      },
-                    ),
-                  ),
-                  new Container(
-                    margin: new EdgeInsets.symmetric(horizontal: 4.0),
-                    child: Theme.of(context).platform == TargetPlatform.iOS
-                        ? CupertinoButton(
-                            child: Text("Send"),
-                            onPressed: _isComposing
-                                ? () => _handleSubmitted(_textController.text)
-                                : null,
-                          )
-                        : IconButton(
-                            color: Colors.pink,
-                            icon: Icon(Icons.mail),
-                            onPressed: _isComposing
-                                ? () => _handleSubmitted(_textController.text)
-                                : null,
-                          ),
-                  ),
-                ],
-              ),
               Text(
                 'You have pushed the button this many times:',
               ),
@@ -201,23 +98,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 '$_counter',
                 style: Theme.of(context).textTheme.display1,
               ),
-              Text(
-                'PM25:',
-              ),
-              Text(
-                '$_pm25',
-                style: Theme.of(context).textTheme.display1,
-              ),
             ],
           )),
     );
-  }
-
-  @override
-  void dispose() {
-    for (ChatMessage message in _messages)
-      message.animationController.dispose();
-    super.dispose();
   }
 
   @override
@@ -229,52 +112,49 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return new Scaffold(
-      appBar: new AppBar(
+      appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: new Text(widget.title),
-//        title: new Text("appbar title"),
+        title: Text(widget.title),
         backgroundColor: const Color(0xFF42A5F5),
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
       ),
-      body: new Container(
-          child: new Column(
-            children: <Widget>[
-              new Flexible(
-                child: new ListView.builder(
-                  padding: new EdgeInsets.all(8.0),
-                  reverse: true,
-                  itemBuilder: (_, int index) => _messages[index],
-                  itemCount: _messages.length,
-                ),
-              ),
-              new Container(
-                child: _buildUI(),
-                decoration:
-                    new BoxDecoration(color: Theme.of(context).cardColor),
-              )
-            ],
-          ),
-          decoration: Theme.of(context).platform == TargetPlatform.iOS
-              ? new BoxDecoration(
-                  border: new Border(
-                    top: new BorderSide(color: Colors.grey[200]), //new
-                  ),
-                )
-              : null),
-      floatingActionButton: new FloatingActionButton(
-//        onPressed: _incrementCounter,
-        onPressed: _updatePM25,
-        tooltip: 'Increment',
-        child: new Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-      drawer: new Drawer(
-        key: new Key("mykey"),
-        child: new ListTile(
-          leading: new Icon(Icons.mail),
-          title: new Text('Change history'),
+      body: Column(children: <Widget>[
+        Container(
+            child: _buildUI(),
+            decoration: Theme.of(context).platform == TargetPlatform.iOS
+                ? BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: Colors.grey[200]),
+                    ),
+                  )
+                : null),
+        ListTile(
+          title: Text("Chat Msg"),
+          subtitle: Text("Chat"),
           onTap: () {
-            // change app state...
+            Navigator.pushNamed(context, "/Chat");
+          },
+        ),
+        ListTile(
+          title: Text("PM25"),
+          subtitle: Text("PM25"),
+          onTap: () {
+            Navigator.pushNamed(context, "/PM25");
+          },
+        ),
+      ]),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ),
+      drawer: Drawer(
+        key: Key("mykey"),
+        child: ListTile(
+          leading: Icon(Icons.mail),
+          title: Text('Change history'),
+          onTap: () {
             setState(() {
               _counter = 0;
             });
