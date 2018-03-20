@@ -4,14 +4,19 @@ import 'dart:io';
 import 'dart:convert';
 
 class PM25 extends StatefulWidget {
-  PM25({Key key, this.title}) : super(key: key);
-  final title;
+  PM25({Key key}) : super(key: key);
   @override
   PM25State createState() => new PM25State();
 }
 
 class PM25State extends State<PM25> {
   int _pm25 = 0;
+  @override
+  void initState() {
+    super.initState();
+//    _updatePM25();
+  }
+
   _updatePM25() async {
     var httpClient = new HttpClient();
     var uri = new Uri.http('api.waqi.info', '/feed/@728/',
@@ -28,27 +33,15 @@ class PM25State extends State<PM25> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        backgroundColor: const Color(0xFF42A5F5),
-        elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
+    return Container(
+        child: Column(children: <Widget>[
+      Text(
+        'PM25:',
       ),
-      body: Container(
-          child: Column(children: <Widget>[
-        Text(
-          'PM25:',
-        ),
-        Text(
-          '$_pm25',
-          style: Theme.of(context).textTheme.display1,
-        ),
-      ])),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _updatePM25,
-        tooltip: 'Update',
-        child: Icon(Icons.update),
+      Text(
+        '$_pm25',
+        style: Theme.of(context).textTheme.display1,
       ),
-    );
+    ]));
   }
 }
