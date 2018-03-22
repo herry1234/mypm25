@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 
-//import 'dart:io';
-//import 'dart:convert';
+import 'dart:io';
+import 'dart:convert';
+
 const double _kAppBarHeight = 128.0;
 const double _kFabHalfSize = 28.0;
 const double _kRecipePageMaxWidth = 500.0;
@@ -21,7 +22,7 @@ class EarthQuakeData {
 
   final String title;
   final String place;
-  final double mag;
+  final num mag;
   final int time;
   final double loc1;
   final double loc2;
@@ -50,14 +51,56 @@ const List<EarthQuakeData> testData = const <EarthQuakeData>[
 ];
 
 class EarthQuake extends StatefulWidget {
-  const EarthQuake({this.title, this.eqs});
+  const EarthQuake({this.title});
   final title;
-  final List<EarthQuakeData> eqs;
+
   @override
   _EarthQuakeState createState() => new _EarthQuakeState();
 }
 
 class _EarthQuakeState extends State<EarthQuake> {
+  List<EarthQuakeData> eqs=[];
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  //http://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=
+  _fetchData() async {
+    var httpClient = new HttpClient();
+//    var now = new DateTime.now();
+//    var formatter = new DateFormat('yyyy-MM-dd');
+//    String formatted = formatter.format(now);
+
+    DateTime today = new DateTime.now();
+    String dateSlug =
+        "${today.year.toString()}-${today.month.toString().padLeft(2,'0')}-${today.day.toString().padLeft(2,'0')}";
+    var uri = new Uri.https('earthquake.usgs.gov', '/fdsnws/event/1/query',
+        {'format': 'geojson', 'starttime': dateSlug});
+    var request = await httpClient.getUrl(uri);
+    var response = await request.close();
+    var responseBody = await response.transform(UTF8.decoder).join();
+    var data = JSON.decode(responseBody);
+    setState(() {
+      List features = data['features'];
+      features.forEach((item) {
+        var d = item['properties'];
+        var g = item['geometry']['coordinates'];
+        EarthQuakeData eq = new EarthQuakeData(
+          title: d['title'],
+          place: d['place'],
+          loc1: g[0]*1.0,
+          loc2: g[1]*1.0,
+          loc3: g[2]*1.0,
+          time: d['time'],
+          mag: d['mag'],
+        );
+        eqs.add(eq);
+      });
+    });
+  }
+
   Widget _buildAppBar(BuildContext context, double statusBarHeight) {
     return new SliverAppBar(
       pinned: true,
@@ -69,23 +112,23 @@ class _EarthQuakeState extends State<EarthQuake> {
           onPressed: () => {},
         ),
       ],
-//      flexibleSpace: LayoutBuilder(
-//        builder: (BuildContext context, BoxConstraints constraints) {
-//          final Size size = constraints.biggest;
-//          final double appBarHeight = size.height - statusBarHeight;
-//          final double t = (appBarHeight - kToolbarHeight) / (_kAppBarHeight - kToolbarHeight);
-//          final double extraPadding = new Tween<double>(begin: 10.0, end: 24.0).lerp(t);
-//          return new Padding(
-//            padding: new EdgeInsets.only(
-//              top: statusBarHeight + 0.5 * extraPadding,
-//              bottom: extraPadding,
-//            ),
-//            child: new Center(
-//                child: Container(),
-//            ),
-//          );
-//        },
-//      ),
+      flexibleSpace: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          final Size size = constraints.biggest;
+          final double appBarHeight = size.height - statusBarHeight;
+          final double t = (appBarHeight - kToolbarHeight) / (_kAppBarHeight - kToolbarHeight);
+          final double extraPadding = new Tween<double>(begin: 10.0, end: 24.0).lerp(t);
+          return new Padding(
+            padding: new EdgeInsets.only(
+              top: statusBarHeight + 0.5 * extraPadding,
+              bottom: extraPadding,
+            ),
+            child: new Center(
+                child: Container(),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -117,7 +160,7 @@ class _EarthQuakeState extends State<EarthQuake> {
         ),
         delegate: new SliverChildBuilderDelegate(
           (BuildContext context, int index) {
-            final EarthQuakeData eq = widget.eqs[index];
+            final EarthQuakeData eq = eqs[index];
             return EarthQuakeCard(
               eq: eq,
               onTap: () {
@@ -125,7 +168,7 @@ class _EarthQuakeState extends State<EarthQuake> {
               },
             );
           },
-          childCount: widget.eqs.length,
+          childCount: eqs.length,
         ),
       ),
     );
@@ -164,10 +207,10 @@ class _EarthQuakeDetailState extends State<EarthQuakeDetailPage> {
       new Marker(
         width: 80.0,
         height: 80.0,
-        point: new LatLng(51.5, -0.09),
+        point: new LatLng(widget.eq.loc2, widget.eq.loc1),
         builder: (ctx) => new Container(
-          child: new FlutterLogo(),
-        ),
+              child: new FlutterLogo(),
+            ),
       ),
 //      new Marker(
 //        width: 80.0,
@@ -202,13 +245,13 @@ class _EarthQuakeDetailState extends State<EarthQuakeDetailPage> {
             new Flexible(
               child: new FlutterMap(
                 options: new MapOptions(
-                  center: new LatLng(51.5, -0.09),
+                  center: new LatLng(widget.eq.loc2, widget.eq.loc1),
                   zoom: 5.0,
                 ),
                 layers: [
                   new TileLayerOptions(
                       urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
                   new MarkerLayerOptions(markers: markers)
                 ],
@@ -308,8 +351,6 @@ class EarthQuakeSubSheet extends StatelessWidget {
   final EarthQuakeData eq;
 
   @override
-
-
   Widget build(BuildContext context) {
     return new Material(
       child: new SafeArea(
@@ -375,18 +416,18 @@ class EarthQuakeSubSheet extends StatelessWidget {
                       height: 80.0,
                       point: new LatLng(53.3498, -6.2603),
                       builder: (ctx) => new Container(
-                        child: new FlutterLogo(
-                          colors: Colors.green,
-                        ),
-                      ),
+                            child: new FlutterLogo(
+                              colors: Colors.green,
+                            ),
+                          ),
                     ),
                     new Marker(
                       width: 80.0,
                       height: 80.0,
                       point: new LatLng(48.8566, 2.3522),
                       builder: (ctx) => new Container(
-                        child: new FlutterLogo(colors: Colors.purple),
-                      ),
+                            child: new FlutterLogo(colors: Colors.purple),
+                          ),
                     ),
                   ],
                 )

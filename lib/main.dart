@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           children: <Widget>[
             ChatPage(title: 'Chat'),
             PM25(),
-            EarthQuake(title: 'EarthQuake', eqs: testData),
+            EarthQuake(title: 'EarthQuake'),
 //            PlayGroud(title: 'Just for Fun'),
           ],
           controller: controller,
