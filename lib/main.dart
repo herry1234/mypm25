@@ -114,11 +114,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-        appBar: AppBar(
+    return new Scaffold(
+        appBar: new AppBar(
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
+          title: new Text(widget.title),
           backgroundColor: const Color(0xFF42A5F5),
           elevation:
               Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
@@ -135,11 +135,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 //            controller: controller,
 //          ),
         ),
-        body: TabBarView(
+        body: new TabBarView(
           children: <Widget>[
             ChatPage(title: 'Chat'),
             PM25(),
-            EarthQuake(title: 'EarthQuake'),
+            new EarthQuake(title: 'EarthQuake'),
 //            PlayGroud(title: 'Just for Fun'),
           ],
           controller: controller,
@@ -177,23 +177,23 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           ),
         ]),
         */
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: new FloatingActionButton(
           onPressed: () => {},
           tooltip: 'Increment',
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
         ),
-        drawer: Drawer(
-          key: Key("mykey"),
-          child: ListTile(
-            leading: Icon(Icons.mail),
-            title: Text('Change history'),
+        drawer: new Drawer(
+          key: new Key("mykey"),
+          child: new ListTile(
+            leading: const Icon(Icons.mail),
+            title: new Text('Change history'),
             onTap: () {
               Navigator.pop(context); // close the drawer
             },
           ),
         ),
-        bottomNavigationBar: Material(
-          child: TabBar(
+        bottomNavigationBar: new Material(
+          child: new TabBar(
             tabs: <Tab>[
               new Tab(icon: new Icon(Icons.home)),
               new Tab(

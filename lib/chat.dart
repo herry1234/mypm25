@@ -23,18 +23,18 @@ class ChatMessage extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
+            new Container(
               margin: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(child: Text(_name[0])),
+              child: new CircleAvatar(child: new Text(_name[0])),
             ),
-            Expanded(
-              child: Column(
+            new Expanded(
+              child: new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(_name, style: Theme.of(context).textTheme.subhead),
-                  Container(
+                  new Text(_name, style: Theme.of(context).textTheme.subhead),
+                  new Container(
                     margin: const EdgeInsets.only(top: 5.0),
-                    child: Text(text),
+                    child: new Text(text),
                   ),
                 ],
               ),
@@ -77,16 +77,16 @@ class ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
 
     return new Scaffold(
       appBar:  AppBar(
-        title:  Text(widget.title),
+        title:  new Text(widget.title),
         backgroundColor: const Color(0xFF42A5F5),
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
       ),
       body:  Container(
           child:  Column(
             children: <Widget>[
-              Flexible(
+              new Flexible(
                 child:  ListView.builder(
-                  padding:  EdgeInsets.all(8.0),
+                  padding:  const EdgeInsets.all(8.0),
                   reverse: true,
                   itemBuilder: (_, int index) => _messages[index],
                   itemCount: _messages.length,
@@ -99,12 +99,12 @@ class ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          Flexible(
-                            child: TextField(
+                          new Flexible(
+                            child: new TextField(
                               controller: _textController,
                               onSubmitted: _handleSubmitted,
                               decoration:
-                              InputDecoration.collapsed(hintText: "Send a message"),
+                              new InputDecoration.collapsed(hintText: "Send a message"),
                               onChanged: (String text) {
                                 setState(() {
                                   _isComposing = text.length > 0;
@@ -112,18 +112,18 @@ class ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                               },
                             ),
                           ),
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 4.0),
+                          new Container(
+                            margin: new EdgeInsets.symmetric(horizontal: 4.0),
                             child: Theme.of(context).platform == TargetPlatform.iOS
-                                ? CupertinoButton(
-                              child: Text("Send"),
+                                ? new CupertinoButton(
+                              child: new Text("Send"),
                               onPressed: _isComposing
                                   ? () => _handleSubmitted(_textController.text)
                                   : null,
                             )
-                                : IconButton(
+                                : new IconButton(
                               color: Colors.pink,
-                              icon: Icon(Icons.mail),
+                              icon: const Icon(Icons.mail),
                               onPressed: _isComposing
                                   ? () => _handleSubmitted(_textController.text)
                                   : null,
@@ -134,14 +134,14 @@ class ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                     ],
                   ),
                 decoration:
-                BoxDecoration(color: Theme.of(context).cardColor),
+                new BoxDecoration(color: Theme.of(context).cardColor),
               )
             ],
           ),
           decoration: Theme.of(context).platform == TargetPlatform.iOS
-              ?  BoxDecoration(
-            border:  Border(
-              top:  BorderSide(color: Colors.grey[200]), //new
+              ?  new BoxDecoration(
+            border:  new Border(
+              top:  new BorderSide(color: Colors.grey[200]),
             ),
           )
               : null),

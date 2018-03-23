@@ -14,7 +14,7 @@ class PM25State extends State<PM25> {
   @override
   void initState() {
     super.initState();
-//    _updatePM25();
+    _updatePM25();
   }
 
   _updatePM25() async {
@@ -35,10 +35,10 @@ class PM25State extends State<PM25> {
   Widget build(BuildContext context) {
     return Container(
         child: Column(children: <Widget>[
-      Text(
+      new Text(
         'PM25:',
       ),
-      Text(
+      new Text(
         '$_pm25',
         style: Theme.of(context).textTheme.display1,
       ),

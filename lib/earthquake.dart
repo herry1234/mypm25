@@ -59,7 +59,7 @@ class EarthQuake extends StatefulWidget {
 }
 
 class _EarthQuakeState extends State<EarthQuake> {
-  List<EarthQuakeData> eqs=[];
+  List<EarthQuakeData> eqs = [];
   @override
   void initState() {
     super.initState();
@@ -90,9 +90,9 @@ class _EarthQuakeState extends State<EarthQuake> {
         EarthQuakeData eq = new EarthQuakeData(
           title: d['title'],
           place: d['place'],
-          loc1: g[0]*1.0,
-          loc2: g[1]*1.0,
-          loc3: g[2]*1.0,
+          loc1: g[0] * 1.0,
+          loc2: g[1] * 1.0,
+          loc3: g[2] * 1.0,
           time: d['time'],
           mag: d['mag'],
         );
@@ -112,23 +112,23 @@ class _EarthQuakeState extends State<EarthQuake> {
           onPressed: () => {},
         ),
       ],
-      flexibleSpace: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          final Size size = constraints.biggest;
-          final double appBarHeight = size.height - statusBarHeight;
-          final double t = (appBarHeight - kToolbarHeight) / (_kAppBarHeight - kToolbarHeight);
-          final double extraPadding = new Tween<double>(begin: 10.0, end: 24.0).lerp(t);
-          return new Padding(
-            padding: new EdgeInsets.only(
-              top: statusBarHeight + 0.5 * extraPadding,
-              bottom: extraPadding,
-            ),
-            child: new Center(
-                child: Container(),
-            ),
-          );
-        },
-      ),
+//      flexibleSpace: LayoutBuilder(
+//        builder: (BuildContext context, BoxConstraints constraints) {
+//          final Size size = constraints.biggest;
+//          final double appBarHeight = size.height - statusBarHeight;
+//          final double t = (appBarHeight - kToolbarHeight) / (_kAppBarHeight - kToolbarHeight);
+//          final double extraPadding = new Tween<double>(begin: 10.0, end: 24.0).lerp(t);
+//          return new Padding(
+//            padding: new EdgeInsets.only(
+//              top: statusBarHeight + 0.5 * extraPadding,
+//              bottom: extraPadding,
+//            ),
+//            child: new Center(
+//                child: Container(),
+//            ),
+//          );
+//        },
+//      ),
     );
   }
 
@@ -138,7 +138,7 @@ class _EarthQuakeState extends State<EarthQuake> {
         new MaterialPageRoute<Null>(
           settings: const RouteSettings(name: '/eq'),
           builder: (BuildContext context) {
-            return EarthQuakeDetailPage(eq: eq);
+            return new EarthQuakeDetailPage(eq: eq);
           },
         ));
   }
@@ -152,16 +152,37 @@ class _EarthQuakeState extends State<EarthQuake> {
         bottom: 8.0);
     return new SliverPadding(
       padding: padding,
-      sliver: new SliverGrid(
+      sliver:
+//      new SliverGrid(
+//        gridDelegate: new SliverGridDelegateWithMaxCrossAxisExtent(
+//          maxCrossAxisExtent: 400.0,
+//          mainAxisSpacing: 10.0,
+//          crossAxisSpacing: 10.0,
+//          childAspectRatio: 8.0,
+//        ),
+//        delegate: new SliverChildBuilderDelegate(
+//              (BuildContext context, int index) {
+//            return new Container(
+//              alignment: Alignment.center,
+//              color: Colors.teal[100 * (index % 9)],
+//              child: new Text('grid item $index'),
+//            );
+//          },
+//          childCount: 20,
+//        ),
+//      ),
+//
+          new SliverGrid(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: _kRecipePageMaxWidth,
           crossAxisSpacing: 8.0,
           mainAxisSpacing: 8.0,
+          childAspectRatio: 4.0,
         ),
         delegate: new SliverChildBuilderDelegate(
           (BuildContext context, int index) {
             final EarthQuakeData eq = eqs[index];
-            return EarthQuakeCard(
+            return new EarthQuakeCard(
               eq: eq,
               onTap: () {
                 _showEQPage(context, eq);
@@ -177,7 +198,7 @@ class _EarthQuakeState extends State<EarthQuake> {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    return Scaffold(
+    return new Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
           _buildAppBar(context, statusBarHeight),
@@ -212,24 +233,6 @@ class _EarthQuakeDetailState extends State<EarthQuakeDetailPage> {
               child: new FlutterLogo(),
             ),
       ),
-//      new Marker(
-//        width: 80.0,
-//        height: 80.0,
-//        point: new LatLng(53.3498, -6.2603),
-//        builder: (ctx) => new Container(
-//          child: new FlutterLogo(
-//            colors: Colors.green,
-//          ),
-//        ),
-//      ),
-//      new Marker(
-//        width: 80.0,
-//        height: 80.0,
-//        point: new LatLng(48.8566, 2.3522),
-//        builder: (ctx) => new Container(
-//          child: new FlutterLogo(colors: Colors.purple),
-//        ),
-//      ),
     ];
 
     return new Scaffold(
@@ -320,7 +323,7 @@ class EarthQuakeCard extends StatelessWidget {
                 children: <Widget>[
                   new Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Container(),
+//                    child: Container(),
                   ),
                   new Expanded(
                     child: new Column(
@@ -357,40 +360,11 @@ class EarthQuakeSubSheet extends StatelessWidget {
         top: false,
         bottom: false,
         child: Column(children: [
-          Padding(
+          new Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
-//            padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-//            child: new Table(
-//              columnWidths: const <int, TableColumnWidth>{
-//                0: const FixedColumnWidth(64.0)
-//              },
-//              children: <TableRow>[
-//                new TableRow(children: <Widget>[
-//                  new TableCell(
-//                    verticalAlignment: TableCellVerticalAlignment.middle,
-//                    child: Container(),
-//                  ),
-//                  new TableCell(
-//                      verticalAlignment: TableCellVerticalAlignment.middle,
-//                      child: new Text(eq.title)),
-//                ]),
-//                new TableRow(children: <Widget>[
-//                  const SizedBox(),
-//                  new Padding(
-//                      padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
-//                      child: new Text(eq.place)),
-//                ]),
-//                new TableRow(children: <Widget>[
-//                  const SizedBox(),
-//                  new Padding(
-//                      padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
-//                      child: new Text(eq.mag.toString())),
-//                ]),
-//              ],
-//            ),
           ),
-          Flexible(
+          new Flexible(
             child: FlutterMap(
               options: new MapOptions(
                 center: new LatLng(51.0, -0.09),
