@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 
-import 'dart:io';
+//import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
+import 'package:http/http.dart' as http;
 
 const double _kAppBarHeight = 128.0;
-const double _kFabHalfSize = 28.0;
-const double _kRecipePageMaxWidth = 500.0;
+const double _EQPageMaxWidth = 500.0;
 
 class EarthQuakeData {
   const EarthQuakeData({
@@ -53,54 +54,53 @@ const List<EarthQuakeData> testData = const <EarthQuakeData>[
 class EarthQuake extends StatefulWidget {
   const EarthQuake({this.title});
   final title;
-
   @override
   _EarthQuakeState createState() => new _EarthQuakeState();
 }
 
-class _EarthQuakeState extends State<EarthQuake> {
-  List<EarthQuakeData> eqs = [];
-  @override
-  void initState() {
-    super.initState();
-    _fetchData();
-  }
+Future<List<EarthQuakeData>> _fetchData() async {
+  List<EarthQuakeData> my_eqs = [];
 
+  DateTime today = new DateTime.now();
+  String dateSlug =
+      "${today.year.toString()}-${today.month.toString().padLeft(2,'0')}-${(today.day-1).toString().padLeft(2,'0')}";
   //http://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=
-  _fetchData() async {
-    var httpClient = new HttpClient();
 //    var now = new DateTime.now();
 //    var formatter = new DateFormat('yyyy-MM-dd');
 //    String formatted = formatter.format(now);
+  //  var httpClient = new HttpClient();
+//  var uri = new Uri.https('earthquake.usgs.gov', '/fdsnws/event/1/query',
+//      {'format': 'geojson', 'starttime': dateSlug});
+//  var request = await httpClient.getUrl(uri);
+//  var response = await request.close();
+//  var responseBody = await response.transform(UTF8.decoder).join();
+//  var data = JSON.decode(responseBody);
 
-    DateTime today = new DateTime.now();
-    String dateSlug =
-        "${today.year.toString()}-${today.month.toString().padLeft(2,'0')}-${today.day.toString().padLeft(2,'0')}";
-    var uri = new Uri.https('earthquake.usgs.gov', '/fdsnws/event/1/query',
-        {'format': 'geojson', 'starttime': dateSlug});
-    var request = await httpClient.getUrl(uri);
-    var response = await request.close();
-    var responseBody = await response.transform(UTF8.decoder).join();
-    var data = JSON.decode(responseBody);
-    setState(() {
-      List features = data['features'];
-      features.forEach((item) {
-        var d = item['properties'];
-        var g = item['geometry']['coordinates'];
-        EarthQuakeData eq = new EarthQuakeData(
-          title: d['title'],
-          place: d['place'],
-          loc1: g[0] * 1.0,
-          loc2: g[1] * 1.0,
-          loc3: g[2] * 1.0,
-          time: d['time'],
-          mag: d['mag'],
-        );
-        eqs.add(eq);
-      });
-    });
-  }
+  final response = await http.get(
+      'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=' +
+          dateSlug);
+  final data = JSON.decode(response.body);
 
+  List features = data['features'];
+  features.forEach((item) {
+    var d = item['properties'];
+    var g = item['geometry']['coordinates'];
+    EarthQuakeData eq = new EarthQuakeData(
+      title: d['title'],
+      place: d['place'],
+      loc1: g[0] * 1.0,
+      loc2: g[1] * 1.0,
+      loc3: g[2] * 1.0,
+      time: d['time'],
+      mag: d['mag'],
+    );
+    my_eqs.add(eq);
+  });
+
+  return my_eqs;
+}
+
+class _EarthQuakeState extends State<EarthQuake> {
   Widget _buildAppBar(BuildContext context, double statusBarHeight) {
     return new SliverAppBar(
       pinned: true,
@@ -112,23 +112,25 @@ class _EarthQuakeState extends State<EarthQuake> {
           onPressed: () => {},
         ),
       ],
-//      flexibleSpace: LayoutBuilder(
-//        builder: (BuildContext context, BoxConstraints constraints) {
-//          final Size size = constraints.biggest;
-//          final double appBarHeight = size.height - statusBarHeight;
-//          final double t = (appBarHeight - kToolbarHeight) / (_kAppBarHeight - kToolbarHeight);
-//          final double extraPadding = new Tween<double>(begin: 10.0, end: 24.0).lerp(t);
-//          return new Padding(
-//            padding: new EdgeInsets.only(
-//              top: statusBarHeight + 0.5 * extraPadding,
-//              bottom: extraPadding,
-//            ),
-//            child: new Center(
-//                child: Container(),
-//            ),
-//          );
-//        },
-//      ),
+      flexibleSpace: new LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          final Size size = constraints.biggest;
+          final double appBarHeight = size.height - statusBarHeight;
+          final double t = (appBarHeight - kToolbarHeight) /
+              (_kAppBarHeight - kToolbarHeight);
+          final double extraPadding =
+              new Tween<double>(begin: 10.0, end: 24.0).lerp(t);
+          return new Padding(
+            padding: new EdgeInsets.only(
+              top: statusBarHeight + 0.5 * extraPadding,
+              bottom: extraPadding,
+            ),
+            child: new Center(
+              child: Container(),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -143,40 +145,21 @@ class _EarthQuakeState extends State<EarthQuake> {
         ));
   }
 
-  Widget _buildBody(BuildContext context, double statusBarHeight) {
+  Widget _buildBody(BuildContext context, List<EarthQuakeData> eqs) {
     final EdgeInsets mediaPadding = MediaQuery.of(context).padding;
     final EdgeInsets padding = new EdgeInsets.only(
         top: 8.0,
         left: 8.0 + mediaPadding.left,
         right: 8.0 + mediaPadding.right,
         bottom: 8.0);
+
     return new SliverPadding(
       padding: padding,
-      sliver:
-//      new SliverGrid(
-//        gridDelegate: new SliverGridDelegateWithMaxCrossAxisExtent(
-//          maxCrossAxisExtent: 400.0,
-//          mainAxisSpacing: 10.0,
-//          crossAxisSpacing: 10.0,
-//          childAspectRatio: 8.0,
-//        ),
-//        delegate: new SliverChildBuilderDelegate(
-//              (BuildContext context, int index) {
-//            return new Container(
-//              alignment: Alignment.center,
-//              color: Colors.teal[100 * (index % 9)],
-//              child: new Text('grid item $index'),
-//            );
-//          },
-//          childCount: 20,
-//        ),
-//      ),
-//
-          new SliverGrid(
+      sliver: new SliverGrid(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: _kRecipePageMaxWidth,
+          maxCrossAxisExtent: _EQPageMaxWidth,
           crossAxisSpacing: 8.0,
-          mainAxisSpacing: 8.0,
+          mainAxisSpacing: 1.0,
           childAspectRatio: 4.0,
         ),
         delegate: new SliverChildBuilderDelegate(
@@ -193,17 +176,31 @@ class _EarthQuakeState extends State<EarthQuake> {
         ),
       ),
     );
+    ;
   }
 
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     return new Scaffold(
-      body: CustomScrollView(
-        slivers: <Widget>[
-          _buildAppBar(context, statusBarHeight),
-          _buildBody(context, statusBarHeight),
-        ],
+      body: new FutureBuilder<List<EarthQuakeData>>(
+        future: _fetchData(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return CustomScrollView(
+              slivers: <Widget>[
+                _buildAppBar(context, statusBarHeight),
+                _buildBody(context, snapshot.data),
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return new Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner
+          return new Center(
+            child: new CircularProgressIndicator(),
+          );
+        },
       ),
     );
   }

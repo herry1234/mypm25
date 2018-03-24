@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 
 class PM25 extends StatefulWidget {
-  PM25({Key key}) : super(key: key);
+  const PM25({Key key}) : super(key: key);
   @override
   PM25State createState() => new PM25State();
 }
@@ -33,15 +33,23 @@ class PM25State extends State<PM25> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(children: <Widget>[
-      new Text(
-        'PM25:',
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text('PM2.5'),
       ),
-      new Text(
-        '$_pm25',
-        style: Theme.of(context).textTheme.display1,
+      body: new Center(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+          new Text(
+            'PM25:',
+          ),
+          new Text(
+            '$_pm25',
+            style: Theme.of(context).textTheme.display1,
+          ),
+        ]),
       ),
-    ]));
+    );
   }
 }

@@ -138,8 +138,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         body: new TabBarView(
           children: <Widget>[
             ChatPage(title: 'Chat'),
-            PM25(),
-            new EarthQuake(title: 'EarthQuake'),
+            const PM25(),
+            const EarthQuake(title: 'EarthQuake'),
 //            PlayGroud(title: 'Just for Fun'),
           ],
           controller: controller,
