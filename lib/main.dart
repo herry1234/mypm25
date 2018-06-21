@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:myapp/earthquake.dart';
 import 'package:myapp/playgroud.dart';
+import 'package:myapp/video.dart';
 
 import 'chat.dart';
 import 'pm25.dart';
@@ -68,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    controller = new TabController(vsync: this, length: 3);
+    controller = new TabController(vsync: this, length: 4);
   }
 
 //  Widget _buildUI() {
@@ -140,6 +141,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             ChatPage(title: 'Chat'),
             const PM25(),
             const EarthQuake(title: 'EarthQuake'),
+            VideoDemo(),
 //            PlayGroud(title: 'Just for Fun'),
           ],
           controller: controller,
@@ -198,6 +200,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               new Tab(icon: new Icon(Icons.home)),
               new Tab(
                 icon: new Icon(Icons.person),
+              ),
+              new Tab(
+                icon: new Icon(Icons.email),
               ),
               new Tab(
                 icon: new Icon(Icons.email),
