@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
 const String _name = "Herry Wang";
 class ChatPage extends StatefulWidget {
-  ChatPage({Key key, this.title}) : super(key: key);
+  const ChatPage({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
@@ -14,7 +16,7 @@ class ChatMessage extends StatelessWidget {
   final AnimationController animationController;
   @override
   Widget build(BuildContext context) {
-    return new SizeTransition(
+    return SizeTransition(
       sizeFactor:
       CurvedAnimation(parent: animationController, curve: Curves.easeOut),
       axisAlignment: 0.0,
@@ -23,11 +25,11 @@ class ChatMessage extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            new Container(
+             Container(
               margin: const EdgeInsets.only(right: 16.0),
               child: new CircleAvatar(child: new Text(_name[0])),
             ),
-            new Expanded(
+             Expanded(
               child: new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -48,7 +50,7 @@ class ChatMessage extends StatelessWidget {
 class ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
   bool _isComposing = false;
   final List<ChatMessage> _messages = <ChatMessage>[];
-  final TextEditingController _textController = new TextEditingController();
+  final TextEditingController _textController = TextEditingController();
   void _handleSubmitted(String text) {
     _textController.clear();
     setState(() {
@@ -70,6 +72,7 @@ class ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
   void dispose() {
     for (ChatMessage message in _messages)
       message.animationController.dispose();
+    _textController.dispose();
     super.dispose();
   }
   @override
@@ -93,42 +96,43 @@ class ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                 ),
               ),
               Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          new Flexible(
-                            child: new TextField(
+                           Flexible(
+                            child: TextField(
                               controller: _textController,
                               onSubmitted: _handleSubmitted,
                               decoration:
-                              new InputDecoration.collapsed(hintText: "Send a message"),
-                              onChanged: (String text) {
-                                setState(() {
+                                InputDecoration.collapsed(hintText: "Send a message"),
+                              onChanged: (text) {
+                                 debugPrint("no change?");
+                                 setState(() {
                                   _isComposing = text.length > 0;
                                 });
                               },
                             ),
                           ),
-                          new Container(
-                            margin: new EdgeInsets.symmetric(horizontal: 4.0),
-                            child: Theme.of(context).platform == TargetPlatform.iOS
-                                ? new CupertinoButton(
-                              child: new Text("Send"),
-                              onPressed: _isComposing
-                                  ? () => _handleSubmitted(_textController.text)
-                                  : null,
-                            )
-                                : new IconButton(
-                              color: Colors.pink,
-                              icon: const Icon(Icons.mail),
-                              onPressed: _isComposing
-                                  ? () => _handleSubmitted(_textController.text)
-                                  : null,
-                            ),
-                          ),
+//                           Container(
+//                            margin: new EdgeInsets.symmetric(horizontal: 4.0),
+//                            child: Theme.of(context).platform == TargetPlatform.iOS
+//                                ? new CupertinoButton(
+//                              child: new Text("Send"),
+//                              onPressed: _isComposing
+//                                  ? () => _handleSubmitted(_textController.text)
+//                                  : null,
+//                            )
+//                                : IconButton(
+//                              color: Colors.pink,
+//                              icon: const Icon(Icons.mail),
+//                              onPressed: _isComposing
+//                                  ? () => _handleSubmitted(_textController.text)
+//                                  : () => debugPrint("null pressed"),
+//                            ),
+//                          ),
                         ],
                       ),
                     ],

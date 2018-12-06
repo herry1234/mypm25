@@ -4,7 +4,7 @@ import 'package:latlong/latlong.dart';
 
 //import 'dart:io';
 import 'dart:convert';
-import 'dart:async';
+//import 'dart:async';
 import 'package:http/http.dart' as http;
 
 const double _kAppBarHeight = 128.0;
@@ -79,7 +79,7 @@ Future<List<EarthQuakeData>> _fetchData() async {
   final response = await http.get(
       'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=' +
           dateSlug);
-  final data = JSON.decode(response.body);
+  final data = json.decode(response.body);
 
   List features = data['features'];
   features.forEach((item) {

@@ -23,12 +23,15 @@ class PM25State extends State<PM25> {
         {'token': 'c2e449bbb5e4dffa06e8b5f28a7813e7b4f5b2e6'});
     var request = await httpClient.getUrl(uri);
     var response = await request.close();
-    var responseBody = await response.transform(UTF8.decoder).join();
-    var data = JSON.decode(responseBody);
+    var responseBody = await response.transform(utf8.decoder).join();
+    var data = json.decode(responseBody);
     print(data.toString());
-    setState(() {
-      _pm25 = data['data']['iaqi']['pm25']['v'];
-    });
+    if(this.mounted) {
+      setState(() {
+        _pm25 = data['data']['iaqi']['pm25']['v'];
+      });
+    }
+
   }
 
   @override
